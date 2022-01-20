@@ -138,6 +138,7 @@ target_include_directories(nrf5_ble_scan PUBLIC
 target_link_libraries(nrf5_ble_scan PUBLIC
   nrf5_ble_common
   nrf5_log
+  nrf5_ble_gq
 )
 list(APPEND NRF5_LIBRARY_NRF5_BLE_SCAN_DEPENDENCIES
   nrf5_app_error
@@ -188,7 +189,7 @@ target_link_libraries(nrf5_ble_db_discovery PUBLIC
   nrf5_ble_common
   nrf5_log
 )
-if(NRF5_SDK_VERSION VERSION_EQUAL 16.0.0)
+if(NRF5_SDK_VERSION VERSION_GREATER_EQUAL 16.0.0)
   
   target_link_libraries(nrf5_ble_db_discovery PUBLIC
     nrf5_ble_gq

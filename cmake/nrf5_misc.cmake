@@ -562,6 +562,7 @@ list(APPEND NRF5_LIBRARY_NRF5_LED_SOFTBLINK_DEPENDENCIES
   nrf5_strerror
 )
 
+if(${NRF5_SDK_VERSION} VERSION_LESS_EQUAL 16.0.0)
 # Serial port abstraction layer
 add_library(nrf5_serial OBJECT EXCLUDE_FROM_ALL
   "${NRF5_SDK_PATH}/components/libraries/serial/nrf_serial.c"
@@ -613,6 +614,7 @@ list(APPEND NRF5_LIBRARY_NRF5_SERIAL_DEPENDENCIES
   nrf5_sortlist
   nrf5_strerror
 )
+endif()
 
 # CRC16 compute
 add_library(nrf5_crc16 OBJECT EXCLUDE_FROM_ALL

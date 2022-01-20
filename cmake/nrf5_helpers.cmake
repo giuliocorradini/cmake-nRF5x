@@ -36,7 +36,7 @@ function(nrf5_get_sdk_version sdk_path out_sdk_version)
 endfunction()
 
 function(nrf5_validate_sdk_version sdk_version)
-  set(supported_sdk_versions "15.3.0" "16.0.0")
+  set(supported_sdk_versions "15.3.0" "16.0.0" "17.1.0")
   list(FIND supported_sdk_versions ${sdk_version} sdk_version_index)
   if(sdk_version_index EQUAL -1)
     message(FATAL_ERROR "Provided nRF SDK version ${sdk_version} is not supported, try these: ${supported_sdk_versions}")
@@ -75,6 +75,7 @@ function(nrf5_get_board_target sdk_version board out_target out_define)
   set(board_n5dk1         nrf51422_xxaa BOARD_N5DK1    15.3.0 16.0.0)
   set(board_d52dk1        nrf52832_xxaa BOARD_D52DK1   15.3.0 16.0.0)
   set(board_arduinoprimo  nrf52832_xxaa BOARD_ARDUINO_PRIMO 15.3.0 16.0.0)
+  set(board_pca10059      nrf52840_xxaa BOARD_PCA10059 17.1.0)
   # TODO: Support for custom boards?
 
   if(NOT board_${board})
@@ -82,7 +83,7 @@ function(nrf5_get_board_target sdk_version board out_target out_define)
   endif()
 
   list(GET board_${board} ${min_sdk_key} board_min_ver)
-  list(GET board_${board} ${max_sdk_key} board_max_ver)
+  list(GET board_${board} -1 board_max_ver)
   if((sdk_version VERSION_LESS board_min_ver) OR (sdk_version VERSION_GREATER board_max_ver))
     message(FATAL_ERROR "Unsupported nRF board ${board} in version ${sdk_version}")
   endif()
@@ -134,7 +135,7 @@ function(nrf5_get_target_flags sdk_version target out_target out_target_short ou
   set(target_nrf52832_xxaa nrf52832 NRF52832_XXAA 15.3.0 16.0.0)
   set(target_nrf52832_xxab nrf52832 NRF52832_XXAB 15.3.0 16.0.0)
   set(target_nrf52833_xxaa nrf52833 NRF52833_XXAA 16.0.0 16.0.0)
-  set(target_nrf52840_xxaa nrf52840 NRF52840_XXAA 15.3.0 16.0.0)
+  set(target_nrf52840_xxaa nrf52840 NRF52840_XXAA 15.3.0 16.0.0 17.1.0)
 
   if(NOT target_${target})
     message(FATAL_ERROR "Unsupported nRF target: ${target}")
@@ -143,7 +144,7 @@ function(nrf5_get_target_flags sdk_version target out_target out_target_short ou
   list(GET target_${target} ${target_key} target_value)
   list(GET target_${target} ${define_key} define_value)
   list(GET target_${target} ${min_sdk_key} min_sdk_value)
-  list(GET target_${target} ${max_sdk_key} max_sdk_value)
+  list(GET target_${target} -1 max_sdk_value)
 
   if((sdk_version VERSION_LESS min_sdk_value) OR (sdk_version VERSION_GREATER max_sdk_value))
     message(FATAL_ERROR "Unsupported nRF target ${target} in version ${sdk_version}")
@@ -237,6 +238,7 @@ function(nrf5_get_softdevice_data sdk_path sdk_version target sd_variant out_sd_
   # Check supported SD.
   set(softdevices_15.3.0 s112 s132 s140 s212 s312 s332 s340)
   set(softdevices_16.0.0 s112 s113 s132 s140 s212 s312 s332 s340)
+  set(softdevices_17.1.0 s112 s113 s122 s132 s140 s212 s312 s332 s340)
 
   list(FIND softdevices_${sdk_version} ${sd_variant} sd_variant_supported)
   if (sd_variant_supported EQUAL -1)
@@ -260,6 +262,9 @@ function(nrf5_get_softdevice_data sdk_path sdk_version target sd_variant out_sd_
   set(supports_16.0.0_s312 nrf52810)
   set(supports_16.0.0_s332 nrf52832)
   set(supports_16.0.0_s340 nrf52840)
+
+  set(supports_17.1.0_s140 nrf52840)
+  #TODO: finish SoftDevice support table
 
   list(FIND supports_${sdk_version}_${sd_variant} ${target_group} sd_target_supported)
   if (sd_target_supported EQUAL -1)
@@ -295,6 +300,8 @@ function(nrf5_get_softdevice_data sdk_path sdk_version target sd_variant out_sd_
   set(softdevice_16.0.0_s312 6.1.1 YES YES)
   set(softdevice_16.0.0_s332 6.1.1 YES YES)
   set(softdevice_16.0.0_s340 6.1.1 YES YES)
+
+  set(softdevice_17.1.0_s140 7.2.0 YES NO)
 
   list(GET softdevice_${sdk_version}_${sd_variant} ${sd_key_version} sd_version)
   list(GET softdevice_${sdk_version}_${sd_variant} ${sd_key_use_ble} sd_use_ble)

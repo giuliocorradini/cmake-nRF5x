@@ -203,8 +203,12 @@ list(APPEND NRF5_LIBRARY_NRF5_APP_TIMER_DEPENDENCIES
 add_library(nrf5_app_timer_v2 OBJECT EXCLUDE_FROM_ALL)
 target_include_directories(nrf5_app_timer_v2 PUBLIC
   "${NRF5_SDK_PATH}/components/libraries/timer"
+)
+if(NRF5_SDK_VERSION VERSION_LESS_EQUAL 16.0.0)
+target_include_directories(nrf5_app_time_v2 PUBLIC
   "${NRF5_SDK_PATH}/components/libraries/timer/experimental"
 )
+endif()
 target_link_libraries(nrf5_app_timer_v2 PUBLIC
   nrf5_app_scheduler
   nrf5_app_timer_fwd
@@ -221,7 +225,7 @@ if(NRF5_SDK_VERSION VERSION_EQUAL 15.3.0)
     "${NRF5_SDK_PATH}/components/libraries/timer/experimental/drv_rtc.c"
   )
 endif()
-if(NRF5_SDK_VERSION VERSION_EQUAL 16.0.0)
+if(NRF5_SDK_VERSION VERSION_EQUAL 16.0.0 OR NRF5_SDK_VERSION VERSION_EQUAL 17.1.0)
   target_sources(nrf5_app_timer_v2 PRIVATE
     "${NRF5_SDK_PATH}/components/libraries/timer/app_timer2.c"
     "${NRF5_SDK_PATH}/components/libraries/timer/drv_rtc.c"
