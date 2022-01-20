@@ -318,4 +318,13 @@ function(nrf5_target exec_target)
   add_custom_target(erase_all
     COMMAND ${NRF5_NRFJPROG} --eraseall -f nrf52 ${nrfjprog_jlink_sn_opt} ${nrfjprog_jlink_sn_arg}
   )
+
+  add_custom_target(generate_dfu
+    COMMAND ${NRF5_NRFUTIL} pkg generate --hw-version 52 --sd-req 0x00 --application-version 1 --application ${exec_target}.hex ${exec_target}_dfu_pkg.zip #TODO: substitute sd-req with appropriate version
+  )
+  add_dependencies(generate_dfu hex)
+
+  add_custom_target(dfu_flash
+    COMMAND ${NRF5_NRFUTIL} dfu usb-serial -pkg ${exec_target}_dfu_pkg.zip -p /dev/cu.usbmodem*
+  )
 endfunction()
