@@ -11,7 +11,11 @@
 
 This repository provides platform-agnostic CMake files that can be used to build
 custom nRF5 projects. Our goal is to cover the most used libraries and examples
-starting from nRF5 SDK version 15.3.0.
+starting from nRF5 SDK version 17.1.0.
+
+We try to maintain compatibility with older versions of the SDK that were originaly
+supported by this build system, but as time goes on and project grows in complexity,
+some functions may break. We strive for compatibility with newer SDKs only.
 
 ## How to use
 
@@ -37,32 +41,31 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 
 The above example compiles source from the SDK but the user is expected to copy
 `main.c` and modify it instead. Below you can look at a very basic bash script,
-which builds and flashes blinky example.
+which builds and flashes blinky example on a DFU-only device.
 
 ```bash
 #!/bin/bash
 
-# Generate project inside ./build folder.
+# Generate project inside ./build folder. Those variables can be set in your root
+# CMakeLists.txt file.
 cmake \
     -S . \
     -B build \
     -DCMAKE_TOOLCHAIN_FILE="./cmake/arm-none-eabi.cmake" \
     -DTOOLCHAIN_PREFIX="/Users/przemyslawlenart/git/nrf5-cmake/ci/toolchains/gcc" \
     -DNRF5_SDK_PATH="/Users/przemyslawlenart/git/nrf5-cmake/ci/sdks/16.0.0" \
-    -DNRF5_BOARD="pca10056" \
+    -DNRF5_BOARD="pca10059" \
     -DNRF5_SOFTDEVICE_VARIANT="s140"
+    -DNRF5_NRFUTIL="/usr/bin/nrfutil"
 
 # Build project
 cmake --build build
 
-# Erase all
-cmake --build build --target erase_all
+# Generate a DFU package
+cmake --build build --target generate_dfu
 
-# Flash SoftDevice (if used)
-cmake --build build --target flash_softdevice
-
-# Flash progarm
-cmake --build build --target flash
+# Perform a DFU update via USB serial (device must be put in DFU bootloader)
+camek --build build --target flash_dfu
 ```
 
 You can find more examples in the repo's [`./ci/examples/`](./ci/examples) folder.
@@ -157,6 +160,12 @@ Defines `__HEAP_SIZE` compile definition accordingly. If not passed, the
 startup file (.S) will take care of setting up default heap boundaries for
 the specified target.
 
+### `NRF5_NRFUTIL` (nrfutil executable path)
+
+Suggests CMake where nrfutil is located. This path points to the executable file.
+Adafruit-nrfutil is not supported because its syntax differs from Nordic's nrfutil.
+You can download an exec version from the official Github repo.
+
 ### `NRF_JLINK_SN` (SEGGER J-Link serial number, optional)
 
 Tells `nrfjprog` utility which SEGGER J-Link debugger to use based on its serial
@@ -167,6 +176,8 @@ when running commands like flashing and erasing.
 **Important:** You must clear CMake cache and re-run CMake in order to change it.
 
 ## Contributing
+
+_We are setting up a CI pipeline for automated tests._
 
 The project is developed in a semi-automated way and thoroughly tested with CI
 by compiling both SDK provided examples and libraries. You can find more
@@ -180,6 +191,7 @@ information about the project's setup, structure, scripts, etc. in
     MIT License
 
     Copyright (c) 2020 Polidea
+    Copyright (c) 2022 G. Corradini
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -199,6 +211,11 @@ information about the project's setup, structure, scripts, etc. in
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
-## Maintained by [Polidea](https://www.polidea.com/services/iot/)
+## Acknowledgements
+
+This is a fork of the original software built by Polidea:
 
 [![Polidea](https://raw.githubusercontent.com/Polidea/RxAndroidBle/master/site/polidea_logo.png "Tailored software services including concept, design, development and testing")](http://www.polidea.com)
+
+Thanks to anyone who contributed to the original codebase and to those who support
+this new fork.
